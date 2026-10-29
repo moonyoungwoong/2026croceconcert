@@ -222,19 +222,19 @@ const BASE = [
   {kind:'end',   eyebrow:'2026 정기 연주회', title:'감사합니다', en:'THE Classic in Cinema', piece:''}
 ];
 const LAST = BASE.length - 1;
-let list = BASE.map(s => ({yt:'', ...s, start:0, audio:false, url:null, isImg:false, fname:''}));
+let list = BASE.map(s => ({yt:'', ...s, start:0, end:0, audio:false, url:null, isImg:false, fname:''}));
 let opt = {cardSec:8, bright:70, bars:true};
 
 function load(){
   try{
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
     if(!d) return;
-    (d.list||[]).forEach((x,i)=>{ if(list[i]) ['eyebrow','title','en','piece','start','audio','yt'].forEach(k=>{ if(x[k]!==undefined) list[i][k]=x[k]; }); });
+    (d.list||[]).forEach((x,i)=>{ if(list[i]) ['eyebrow','title','en','piece','start','end','audio','yt'].forEach(k=>{ if(x[k]!==undefined) list[i][k]=x[k]; }); });
     Object.assign(opt, d.opt||{});
   }catch(e){}
 }
 function save(){
-  try{ localStorage.setItem(KEY, JSON.stringify({opt, list:list.map(({eyebrow,title,en,piece,start,audio,yt})=>({eyebrow,title,en,piece,start,audio,yt}))})); }catch(e){}
+  try{ localStorage.setItem(KEY, JSON.stringify({opt, list:list.map(({eyebrow,title,en,piece,start,end,audio,yt})=>({eyebrow,title,en,piece,start,end,audio,yt}))})); }catch(e){}
 }
 load();
 
@@ -265,7 +265,7 @@ function renderRows(){
           <div class="fname" id="fn${i}"></div>
           <label class="mini yt-l">YouTube <input class="in in-yt" id="yt${i}" data-k="yt" placeholder="주소 붙여넣기" aria-label="YouTube 영상 주소"></label>
           <div class="r-line">
-            <label class="mini">시작 <input class="in in-num" type="number" id="st${i}" data-k="start" min="0" step="1">초부터</label>
+            <label class="mini">구간 <input class="in in-num" type="number" id="st${i}" data-k="start" min="0" step="1">초 ~ <input class="in in-num" type="number" id="ed${i}" data-k="end" min="0" step="1" placeholder="끝">초 반복</label>
             <label class="mini"><input type="checkbox" id="au${i}" data-k="audio"> 영상 소리 켜기</label>
           </div>
           ${s.q ? `<a class="find" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(s.q)}">YouTube에서 예고편 찾기 ↗</a>` : ''}
@@ -273,7 +273,7 @@ function renderRows(){
       </div>`;
     rows.appendChild(r);
     $('eb'+i).value=s.eyebrow; $('ti'+i).value=s.title; $('en'+i).value=s.en; $('pc'+i).value=s.piece;
-    $('st'+i).value=s.start; $('au'+i).checked=s.audio;
+    $('st'+i).value=s.start; $('ed'+i).value=s.end||''; $('au'+i).checked=s.audio;
     $('yt'+i).value = s.yt ? 'https://youtu.be/'+s.yt : '';
     drawThumb(i);
   });
@@ -374,7 +374,7 @@ function startShow(i=0){
   cur=-1; go(i);
 }
 function stopShow(){
-  [...layers.children].forEach(el=>{ el.pause?.(); el.remove(); });
+  [...layers.children].forEach(el=>{ if(el._t) clearInterval(el._t); if(el._p){ try{ el._p.destroy(); }catch(e){} } el.pause?.(); el.remove(); });
   ambOn=false; $('ambient').classList.remove('on');
   clearTimeout(cardTimer);
   stage.hidden=true; $('setup').hidden=false;
@@ -405,9 +405,10 @@ function setMedia(s){
     else{
       el=document.createElement('video');
       el.src=s.url; el.muted=!s.audio; el.playsInline=true; el.preload='auto';
-      const st=+s.start||0;
+      const st=+s.start||0, ed=+s.end||0;
       el.addEventListener('loadedmetadata',()=>{ if(st && st<el.duration-1) el.currentTime=st; },{once:true});
       el.addEventListener('ended',()=>{ el.currentTime=(st && st<el.duration-1)?st:0; el.play().catch(()=>{}); });
+      if(ed>st) el.addEventListener('timeupdate',()=>{ if(el.currentTime>=ed){ el.currentTime=st; } });
       el.play().catch(()=>{ el.muted=true; el.play().catch(()=>{}); });
     }
     el.className='m';
@@ -425,6 +426,7 @@ function setMedia(s){
     if(o.tagName==='VIDEO') fadeOutAudio(o);
     if(o._p){ try{ o._p.mute(); }catch(e){} }
     setTimeout(()=>{
+      if(o._t) clearInterval(o._t);
       if(o._p){ try{ o._p.destroy(); }catch(e){} }
       o.pause?.(); o.removeAttribute?.('src'); o.remove();
     },1800);
@@ -454,8 +456,9 @@ async function playYT(s){
   const wrap=document.createElement('div'); wrap.className='m yt';
   const target=document.createElement('div'); wrap.appendChild(target);
   layers.appendChild(wrap);
-  const st=Math.floor(+s.start||0);
+  const st=Math.floor(+s.start||0), ed=+s.end||0;
   let shown=false;
+  if(ed>st) wrap._t=setInterval(()=>{ try{ const p=wrap._p; if(p && p.getCurrentTime && p.getCurrentTime()>=ed) p.seekTo(st,true); }catch(e){} },250);
   wrap._p=new YT.Player(target,{
     videoId:s.yt,
     playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,playsinline:1,iv_load_policy:3,modestbranding:1,start:st},
@@ -470,6 +473,7 @@ async function playYT(s){
       },
       onError:e=>{
         if(list[cur]!==s) return;
+        if(wrap._t) clearInterval(wrap._t);
         toast(location.protocol==='file:' ? 'YouTube 재생 오류: GitHub Pages 주소로 열어 주세요' : 'YouTube 영상을 재생할 수 없습니다 (오류 '+e.data+')');
         wrap.remove();
       }
