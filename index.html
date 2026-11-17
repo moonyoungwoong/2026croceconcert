@@ -207,29 +207,29 @@ img.m{animation:kb 40s ease-in-out infinite alternate}
 </div>
 
 <script>
-const KEY = 'classic-in-cinema-2026';
+const KEY = 'classic-in-cinema-2026-v2';
 const BASE = [
   {kind:'open',  eyebrow:'2026 정기 연주회', title:'THE Classic in Cinema', en:'', piece:''},
-  {kind:'film',  eyebrow:'영화 · 1984', title:'아마데우스', en:'Amadeus', piece:'W. A. Mozart · Symphony No. 25 in G minor, K. 183 — 1st mov.', q:'Amadeus 1984 trailer', yt:'ZQV9yySOmhs'},
-  {kind:'film',  eyebrow:'영화 · 1985', title:'아웃 오브 아프리카', en:'Out of Africa', piece:'W. A. Mozart · Clarinet Concerto in A major, K. 622 — 2nd mov.', q:'Out of Africa 1985 trailer', yt:'5RrEv9-ks2Y'},
+  {kind:'film',  eyebrow:'영화 · 1984', title:'아마데우스', en:'Amadeus', piece:'W. A. Mozart · Symphony No. 25 in G minor, K. 183 — 1st mov.', q:'Amadeus 1984 trailer', yt:'ZQV9yySOmhs', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 1985', title:'아웃 오브 아프리카', en:'Out of Africa', piece:'W. A. Mozart · Clarinet Concerto in A major, K. 622 — 2nd mov.', q:'Out of Africa 1985 trailer', yt:'5RrEv9-ks2Y', start:0, end:0},
   {kind:'special', eyebrow:'Special Stage · 조서우', title:'차르다시', en:'Czardas', piece:'Vittorio Monti'},
-  {kind:'film',  eyebrow:'영화 · 1988', title:'시네마 천국', en:'Cinema Paradiso', piece:'Ennio Morricone · Cinema Paradiso', q:'Cinema Paradiso 1988 trailer', yt:'JMyVSD6OvO8'},
-  {kind:'film',  eyebrow:'영화 · 2003', title:'클래식', en:'The Classic', piece:'Folk Dance', q:'영화 클래식 2003 예고편', yt:'VU1ah3RxIww'},
-  {kind:'film',  eyebrow:'영화 · 1996', title:'첨밀밀', en:'Comrades: Almost a Love Story', piece:'月亮代表我的心 · 달빛이 내 마음을 대신해요', q:'첨밀밀 예고편', yt:'x1g7VSYwJ44'},
-  {kind:'film',  eyebrow:'영화 · 2001', title:'냉정과 열정 사이', en:'Calmi Cuori Appassionati', piece:'Between Calm and Passion', q:'냉정과 열정 사이 예고편', yt:'4898dYcq_Yg'},
-  {kind:'film',  eyebrow:'영화 · 1980', title:'라붐', en:'La Boum', piece:'Reality', q:'La Boum 1980 trailer', yt:'7qer2FAGltQ'},
-  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz · Cries and Whispers', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg'},
+  {kind:'film',  eyebrow:'영화 · 1988', title:'시네마 천국', en:'Cinema Paradiso', piece:'Ennio Morricone · Cinema Paradiso', q:'Cinema Paradiso 1988 trailer', yt:'JMyVSD6OvO8', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 2003', title:'클래식', en:'The Classic', piece:'Folk Dance', q:'영화 클래식 2003 예고편', yt:'VU1ah3RxIww', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 1996', title:'첨밀밀', en:'Comrades: Almost a Love Story', piece:'月亮代表我的心 · 달빛이 내 마음을 대신해요', q:'첨밀밀 예고편', yt:'x1g7VSYwJ44', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 2001', title:'냉정과 열정 사이', en:'Calmi Cuori Appassionati', piece:'Between Calm and Passion', q:'냉정과 열정 사이 예고편', yt:'4898dYcq_Yg', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 1980', title:'라붐', en:'La Boum', piece:'Reality', q:'La Boum 1980 trailer', yt:'7qer2FAGltQ', start:0, end:0},
+  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz · Cries and Whispers', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg', start:0, end:0},
   {kind:'end',   eyebrow:'2026 정기 연주회', title:'감사합니다', en:'THE Classic in Cinema', piece:''}
 ];
 const LAST = BASE.length - 1;
-let list = BASE.map(s => ({yt:'', ...s, start:0, end:0, audio:false, url:null, isImg:false, fname:''}));
+let list = BASE.map(s => ({yt:'', start:0, end:0, ...s, audio:false, url:null, isImg:false, fname:''}));
 let opt = {cardSec:8, bright:70, bars:true};
 
 function load(){
   try{
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
     if(!d) return;
-    (d.list||[]).forEach((x,i)=>{ if(list[i]) ['eyebrow','title','en','piece','start','end','audio','yt'].forEach(k=>{ if(x[k]!==undefined) list[i][k]=x[k]; }); });
+    (d.list||[]).forEach((x,i)=>{ if(list[i]) ['eyebrow','title','en','piece','audio'].forEach(k=>{ if(x[k]!==undefined) list[i][k]=x[k]; }); });
     Object.assign(opt, d.opt||{});
   }catch(e){}
 }
@@ -461,10 +461,11 @@ async function playYT(s){
   if(ed>st) wrap._t=setInterval(()=>{ try{ const p=wrap._p; if(p && p.getCurrentTime && p.getCurrentTime()>=ed) p.seekTo(st,true); }catch(e){} },250);
   wrap._p=new YT.Player(target,{
     videoId:s.yt,
-    playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,playsinline:1,iv_load_policy:3,modestbranding:1,start:st},
+    playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,playsinline:1,iv_load_policy:3,modestbranding:1,start:st,cc_load_policy:0},
     events:{
-      onReady:e=>{ e.target.mute(); if(s.audio){ e.target.unMute(); e.target.setVolume(100); } e.target.playVideo(); },
+      onReady:e=>{ try{ e.target.unloadModule('captions'); e.target.unloadModule('cc'); }catch(_){} e.target.mute(); if(s.audio){ e.target.unMute(); e.target.setVolume(100); } e.target.playVideo(); },
       onStateChange:e=>{
+        if(e.data===YT.PlayerState.PLAYING){ try{ e.target.unloadModule('captions'); e.target.unloadModule('cc'); }catch(_){} }
         if(e.data===YT.PlayerState.PLAYING && !shown && wrap.isConnected){
           shown=true; wrap.classList.add('on');
           setTimeout(()=>{ if(list[cur]===s) setAmbient(false); },1700);
