@@ -448,6 +448,14 @@ function loadYT(){
   });
   return ytP;
 }
+// 자막 끄기: 업로더가 자막을 기본으로 켜 둔 영상은 재생이 시작된 뒤 자막을 다시 불러오므로, 처음 몇 초 동안 반복해서 끔
+function killCC(p){
+  const off=()=>{ try{
+    p.setOption('captions','track',{}); p.setOption('cc','track',{});
+    p.unloadModule('captions'); p.unloadModule('cc');
+  }catch(_){} };
+  off(); [300,800,1500,3000,5000,8000].forEach(t=>setTimeout(off,t));
+}
 async function playYT(s){
   const want=cur;
   const ok=await loadYT();
@@ -465,7 +473,7 @@ async function playYT(s){
     events:{
       onReady:e=>{ try{ e.target.unloadModule('captions'); e.target.unloadModule('cc'); }catch(_){} e.target.mute(); if(s.audio){ e.target.unMute(); e.target.setVolume(100); } e.target.playVideo(); },
       onStateChange:e=>{
-        if(e.data===YT.PlayerState.PLAYING){ try{ e.target.unloadModule('captions'); e.target.unloadModule('cc'); }catch(_){} }
+        if(e.data===YT.PlayerState.PLAYING) killCC(e.target);
         if(e.data===YT.PlayerState.PLAYING && !shown && wrap.isConnected){
           shown=true; wrap.classList.add('on');
           setTimeout(()=>{ if(list[cur]===s) setAmbient(false); },1700);
