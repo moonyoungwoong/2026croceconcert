@@ -159,7 +159,7 @@ img.m{animation:kb 40s ease-in-out infinite alternate}
 
   <div class="bar">
     <label class="btn">영상 여러 개 한 번에 불러오기<input type="file" id="bulk" accept="video/*,image/*" multiple hidden></label>
-    <span class="hint">파일 이름 앞 번호로 자동 연결됩니다: <code>00</code> 오프닝, <code>01</code>~<code>09</code> 곡, <code>10</code> 엔딩 (예: <code>04_시네마천국.mp4</code>). 끌어다 놓아도 됩니다.</span>
+    <span class="hint">파일 이름 앞 번호로 자동 연결됩니다: <code>00</code> 오프닝, <code>01</code>~<code>09</code> 곡, <code>10</code> 올드보이 두 번째 곡(Cries and Whispers), <code>11</code> 엔딩 (예: <code>04_시네마천국.mp4</code>). 끌어다 놓아도 됩니다.</span>
   </div>
 
   <div class="bar">
@@ -218,7 +218,8 @@ const BASE = [
   {kind:'film',  eyebrow:'영화 · 1996', title:'첨밀밀', en:'Comrades: Almost a Love Story', piece:'月亮代表我的心 · 달빛이 내 마음을 대신해요', q:'첨밀밀 예고편', yt:'vqbYsgJUX8Q', start:0, end:142},
   {kind:'film',  eyebrow:'영화 · 2001', title:'냉정과 열정 사이', en:'Calmi Cuori Appassionati', piece:'Between Calm and Passion', q:'냉정과 열정 사이 예고편', yt:'4898dYcq_Yg', start:0, end:103},
   {kind:'film',  eyebrow:'영화 · 1980', title:'라붐', en:'La Boum', piece:'Reality', q:'La Boum 1980 trailer', yt:'7qer2FAGltQ', start:20, end:163},
-  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz · Cries and Whispers', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg', start:5, end:110},
+  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg', start:5, end:110, no:'9-1'},
+  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'Cries and Whispers', q:'올드보이 2003 예고편', yt:'hBNBpNcuQHI', start:0, end:0, no:'9-2'},
   {kind:'end',   eyebrow:'2026 정기 연주회', title:'감사합니다', en:'THE Classic in Cinema', piece:''}
 ];
 const LAST = BASE.length - 1;
@@ -239,7 +240,7 @@ function save(){
 load();
 
 const $ = id => document.getElementById(id);
-const no = i => i===0 ? 'OPEN' : i===LAST ? 'END' : String(i).padStart(2,'0');
+const no = i => i===0 ? 'OPEN' : i===LAST ? 'END' : (BASE[i].no || String(i).padStart(2,'0'));
 
 /* ---------- 설정 화면 ---------- */
 function renderRows(){
@@ -494,14 +495,14 @@ loadYT();
 function showCard(s,i){
   clearTimeout(cardTimer);
   const isMeta = s.kind==='open'||s.kind==='end';
-  $('cNo').textContent = isMeta ? '' : (s.kind==='special' ? `No. ${i} · SPECIAL` : `No. ${i}`);
+  $('cNo').textContent = isMeta ? '' : (s.kind==='special' ? `No. ${s.no||i} · SPECIAL` : `No. ${s.no||i}`);
   $('cEye').textContent = s.eyebrow;
   $('cTitle').textContent = s.title;
   $('cEn').textContent = s.en; $('cEn').hidden = !s.en;
   $('cPiece').textContent = s.piece; $('cPiece').hidden = !s.piece;
   document.querySelector('.c-rule').hidden = !s.piece;
   $('card').classList.toggle('big', isMeta);
-  $('tNo').textContent = String(i).padStart(2,'0');
+  $('tNo').textContent = s.no || String(i).padStart(2,'0');
   $('tTitle').textContent = s.title;
   $('tPiece').textContent = s.piece || s.en;
 
