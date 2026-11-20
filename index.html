@@ -159,7 +159,7 @@ img.m{animation:kb 40s ease-in-out infinite alternate}
 
   <div class="bar">
     <label class="btn">영상 여러 개 한 번에 불러오기<input type="file" id="bulk" accept="video/*,image/*" multiple hidden></label>
-    <span class="hint">파일 이름 앞 번호로 자동 연결됩니다: <code>00</code> 오프닝, <code>01</code>~<code>09</code> 곡, <code>10</code> 올드보이 두 번째 곡(Cries and Whispers), <code>11</code> 엔딩 (예: <code>04_시네마천국.mp4</code>). 끌어다 놓아도 됩니다.</span>
+    <span class="hint">파일 이름 앞 번호로 자동 연결됩니다: <code>00</code> 오프닝, <code>01</code>~<code>06</code> 곡, <code>07</code> 올드보이 The Last Waltz, <code>08</code> 올드보이 Cries and Whispers, <code>09</code> 가을의 전설, <code>10</code> 엔딩, <code>11</code> 앵콜 (예: <code>04_시네마천국.mp4</code>). 끌어다 놓아도 됩니다.</span>
   </div>
 
   <div class="bar">
@@ -173,8 +173,8 @@ img.m{animation:kb 40s ease-in-out infinite alternate}
   <div class="keys">
     <div><b>→ Space</b>다음 곡 (리모컨 PageDown)</div>
     <div><b>←</b>이전 곡 (리모컨 PageUp)</div>
-    <div><b>1 ~ 9</b>해당 곡으로 바로 이동</div>
-    <div><b>0 / E</b>오프닝 / 엔딩</div>
+    <div><b>1 ~ 8</b>해당 곡으로 바로 이동</div>
+    <div><b>0 / E</b>오프닝 / 엔딩 (엔딩에서 → 누르면 앵콜)</div>
     <div><b>B</b>암전 켜기·끄기</div>
     <div><b>C</b>곡 소개 다시 띄우기</div>
     <div><b>T</b>자막 전부 숨기기·보이기</div>
@@ -202,25 +202,27 @@ img.m{animation:kb 40s ease-in-out infinite alternate}
   </div>
   <div class="tag" id="tag"><span class="t-no" id="tNo"></span><span class="t-title" id="tTitle"></span><span class="t-piece" id="tPiece"></span></div>
   <div id="black"></div>
-  <div id="hud" hidden><div class="h-now" id="hNow"></div><div class="h-next" id="hNext"></div><div class="h-keys">→ 다음 · ← 이전 · 1-9 이동 · B 암전 · C 소개 · T 자막 · S 설정</div></div>
+  <div id="hud" hidden><div class="h-now" id="hNow"></div><div class="h-next" id="hNext"></div><div class="h-keys">→ 다음 · ← 이전 · 1-8 이동 · B 암전 · C 소개 · T 자막 · S 설정</div></div>
   <div id="toast"></div>
 </div>
 
 <script>
-const KEY = 'classic-in-cinema-2026-v2';
+const KEY = 'classic-in-cinema-2026-v3';
 const BASE = [
-  {kind:'open',  eyebrow:'2026 정기 연주회', title:'THE Classic in Cinema', en:'', piece:''},
+  {kind:'open',  eyebrow:'2026 크로체 정기 연주회', title:'THE Classic in Cinema', en:'', piece:''},
   {kind:'film',  eyebrow:'영화 · 1984', title:'아마데우스', en:'Amadeus', piece:'W. A. Mozart · Symphony No. 25 in G minor, K. 183 — 1st mov.', q:'Amadeus 1984 trailer', yt:'ZQV9yySOmhs', start:0, end:113},
   {kind:'film',  eyebrow:'영화 · 1985', title:'아웃 오브 아프리카', en:'Out of Africa', piece:'W. A. Mozart · Clarinet Concerto in A major, K. 622 — 2nd mov.', q:'Out of Africa 1985 trailer', yt:'5RrEv9-ks2Y', start:0, end:158},
   {kind:'special', eyebrow:'Special Stage · 조서우', title:'차르다시', en:'Czardas', piece:'Vittorio Monti'},
-  {kind:'film',  eyebrow:'영화 · 1988', title:'시네마 천국', en:'Cinema Paradiso', piece:'Ennio Morricone · Cinema Paradiso', q:'Cinema Paradiso 1988 trailer', yt:'JMyVSD6OvO8', start:0, end:88},
+  // [이번 공연에서 뺀 곡 — 다시 넣으려면 맨 앞 // 를 지우세요] {kind:'film',  eyebrow:'영화 · 1988', title:'시네마 천국', en:'Cinema Paradiso', piece:'Ennio Morricone · Cinema Paradiso', q:'Cinema Paradiso 1988 trailer', yt:'JMyVSD6OvO8', start:0, end:88},
   {kind:'film',  eyebrow:'영화 · 2003', title:'클래식', en:'The Classic', piece:'Folk Dance', q:'영화 클래식 2003 예고편', yt:'EOZWxGbQlzY', start:15, end:124},
   {kind:'film',  eyebrow:'영화 · 1996', title:'첨밀밀', en:'Comrades: Almost a Love Story', piece:'月亮代表我的心 · 달빛이 내 마음을 대신해요', q:'첨밀밀 예고편', yt:'vqbYsgJUX8Q', start:0, end:142},
-  {kind:'film',  eyebrow:'영화 · 2001', title:'냉정과 열정 사이', en:'Calmi Cuori Appassionati', piece:'Between Calm and Passion', q:'냉정과 열정 사이 예고편', yt:'4898dYcq_Yg', start:0, end:103},
+  // [이번 공연에서 뺀 곡 — 다시 넣으려면 맨 앞 // 를 지우세요] {kind:'film',  eyebrow:'영화 · 2001', title:'냉정과 열정 사이', en:'Calmi Cuori Appassionati', piece:'Between Calm and Passion', q:'냉정과 열정 사이 예고편', yt:'4898dYcq_Yg', start:0, end:103},
   {kind:'film',  eyebrow:'영화 · 1980', title:'라붐', en:'La Boum', piece:'Reality', q:'La Boum 1980 trailer', yt:'7qer2FAGltQ', start:20, end:163},
-  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg', start:5, end:110, no:'9-1'},
-  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'Cries and Whispers', q:'올드보이 2003 예고편', yt:'2HkjrJ6IK5E', start:0, end:110, no:'9-2'},
-  {kind:'end',   eyebrow:'2026 정기 연주회', title:'감사합니다', en:'THE Classic in Cinema', piece:''}
+  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'The Last Waltz', q:'올드보이 2003 예고편', yt:'tAaBkFChaRg', start:5, end:110, no:'7-1'},
+  {kind:'film',  eyebrow:'영화 · 2003', title:'올드보이', en:'Oldboy', piece:'Cries and Whispers', q:'올드보이 2003 예고편', yt:'2HkjrJ6IK5E', start:0, end:110, no:'7-2'},
+  {kind:'film',  eyebrow:'영화 · 1994', title:'가을의 전설', en:'Legends of the Fall', piece:'James Horner · The Ludlows', q:'Legends of the Fall 1994 trailer', yt:'QmfxbiMbASI', start:0, end:0, no:'8'},
+  {kind:'end',   eyebrow:'2026 크로체 정기 연주회', title:'감사합니다', en:'THE Classic in Cinema', piece:''},
+  {kind:'film',  eyebrow:'영화 · 1965', title:'사운드 오브 뮤직', en:'The Sound of Music', piece:'Do-Re-Mi · 도레미송', q:'The Sound of Music Do-Re-Mi', yt:'ekyURclrK60', start:0, end:0, no:'ENCORE'}
 ];
 const LAST = BASE.length - 1;
 let list = BASE.map(s => ({yt:'', start:0, end:0, ...s, audio:false, url:null, isImg:false, fname:''}));
@@ -240,7 +242,8 @@ function save(){
 load();
 
 const $ = id => document.getElementById(id);
-const no = i => i===0 ? 'OPEN' : i===LAST ? 'END' : (BASE[i].no || String(i).padStart(2,'0'));
+const no = i => i===0 ? 'OPEN' : BASE[i].kind==='end' ? 'END' : (BASE[i].no || String(i).padStart(2,'0'));
+const END_I = BASE.findIndex(x=>x.kind==='end');
 
 /* ---------- 설정 화면 ---------- */
 function renderRows(){
@@ -495,7 +498,7 @@ loadYT();
 function showCard(s,i){
   clearTimeout(cardTimer);
   const isMeta = s.kind==='open'||s.kind==='end';
-  $('cNo').textContent = isMeta ? '' : (s.kind==='special' ? `No. ${s.no||i} · SPECIAL` : `No. ${s.no||i}`);
+  $('cNo').textContent = isMeta ? '' : (s.kind==='special' ? `No. ${s.no||i} · SPECIAL` : s.no==='ENCORE' ? 'ENCORE' : `No. ${s.no||i}`);
   $('cEye').textContent = s.eyebrow;
   $('cTitle').textContent = s.title;
   $('cEn').textContent = s.en; $('cEn').hidden = !s.en;
@@ -531,8 +534,8 @@ addEventListener('keydown', e=>{
   const k=e.key;
   if(['ArrowRight',' ','PageDown','Enter'].includes(k)){ e.preventDefault(); go(cur+1); }
   else if(['ArrowLeft','PageUp','Backspace'].includes(k)){ e.preventDefault(); go(cur-1); }
-  else if(/^[0-9]$/.test(k)){ go(+k); }
-  else if(k==='e'||k==='E'){ go(LAST); }
+  else if(/^[0-9]$/.test(k)){ const j = k==='0' ? 0 : BASE.findIndex((x,idx)=> x.kind!=='open' && x.kind!=='end' && (x.no ? x.no.split('-')[0]===k : idx===+k)); if(j>=0) go(j); }
+  else if(k==='e'||k==='E'){ go(END_I); }
   else if(k==='b'||k==='B'||k==='.'){ black=!black; $('black').classList.toggle('on',black); }
   else if(k==='c'||k==='C'){ showCard(list[cur],cur); }
   else if(k==='t'||k==='T'){ notext=!notext; stage.classList.toggle('notext',notext); toast(notext?'자막 숨김':'자막 표시'); }
